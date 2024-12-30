@@ -1,0 +1,56 @@
+:root {
+  --yellow__color: #f2eb0f;
+  --blue__color: #37b6ff;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #252525;
+  color: #fff;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  margin: 5px 0;
+}
+
+#file-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+#file-list li {
+  padding: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.file-icon {
+  width: 20px;
+  height: flex;
+  color: var(--blue__color);
+  margin-right: 10px;
+}
+
+a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 16px;
+  transition: color 0.3s ease, transform 0.3s ease-out;
+}
+
+a:hover {
+  color: var(--blue__color);
+}
+
+a:active {
+  transform: scale(0.95);
+}
+
+
+
