@@ -27,7 +27,7 @@ public class FileService {
     List<FileInfo> fileInfos = new ArrayList<>();
     if(directory.exists() && directory.isDirectory()) {
       File[] files = directory.listFiles();
-      if(files != null) {
+      if(files != null && files.length > 0) {
         System.out.println("Extrayendo archivos de " + directoryPath);
         for(File f : files) {
           String fileType = f.isDirectory() ? "directory" : "file";
@@ -38,8 +38,11 @@ public class FileService {
 
       else {
         System.out.println("No hay archivos");
-        return createEmptyDirectoryResponse(directoryPath);
       }
+    }
+
+    else{
+      System.out.println("El directorio no existe");
     }
 
     Gson gson = new Gson();
@@ -52,16 +55,4 @@ public class FileService {
     System.out.println(response.generateResponseHeaders() + jsonResponse);
     return response;
   } // getFiles
-
-  private HttpResponse createEmptyDirectoryResponse (String directoryPath) {
-    JsonObject jsonResponse = new JsonObject();
-    jsonResponse.addProperty("message", "La carpeta está vacía");
-    JsonArray files = new JsonArray();
-    jsonResponse.add("files", files);
-    HttpResponse response = new HttpResponse();
-    response.addHeader("Content-Type", "application/json");
-    response.addHeader("Content-Length", String.valueOf(jsonResponse.size()));
-    response.setBody(jsonResponse.toString().getBytes());
-    return response;
-  }
 }

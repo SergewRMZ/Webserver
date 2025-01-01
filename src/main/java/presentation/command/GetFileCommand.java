@@ -33,6 +33,7 @@ public class GetFileCommand implements Command {
   }
 
   private HttpResponse handleStaticRequest(String resource) {
+    System.out.println("Recurso url: " + resource);
     String filepath = basePath + resource;
     if(resource.equals("/")) filepath = basePath + "/index.html";
 
@@ -42,7 +43,11 @@ public class GetFileCommand implements Command {
       return serveFile(file);
     }
 
-    return null;
+    else {
+      System.out.println("ERROR: EL RECURSO SOLICITADO NO EXISTE, ENVIANDO ERROR 404");
+      File error = new File(basePath + "/NotFound.html");
+      return serveFile(error);
+    }
   }
 
   private HttpResponse serveFile(File file) {
