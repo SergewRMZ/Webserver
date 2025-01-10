@@ -5,11 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
+import domain.dto.FileInfo;
 import presentation.http.HttpResponse;
-import dto.FileInfo;
 
 public class FileService {
   public FileService() {}

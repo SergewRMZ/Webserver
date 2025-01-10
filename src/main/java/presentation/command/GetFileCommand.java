@@ -3,7 +3,7 @@ package presentation.command;
 import java.io.File;
 import java.io.FileInputStream;
 
-import dto.MIME_TYPES;
+import domain.dto.MIME_TYPES;
 import presentation.http.HttpResponse;
 import presentation.services.FileService;
 

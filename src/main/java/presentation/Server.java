@@ -1,5 +1,6 @@
 package presentation;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -78,27 +79,48 @@ public class Server {
 
   private void handleRead(SelectionKey key) throws IOException {
     SocketChannel client = (SocketChannel) key.channel();
-    ByteBuffer buffer = ByteBuffer.allocate(1024);
-    buffer.clear();
+    ByteBuffer buffer = ByteBuffer.allocate(2048);
+    ByteArrayOutputStream data = new ByteArrayOutputStream();
     
-    int bytesRead = client.read(buffer);
+    int bytesRead;
+    while ((bytesRead = client.read(buffer)) > 0) {
+      buffer.flip();
+      data.write(buffer.array(), 0, buffer.limit());
+      buffer.clear();
+    }
+
     if (bytesRead == -1) {
       System.out.println("El cliente cerró la conexión.");
       client.close();
       return;
     }
 
-    if (bytesRead > 0) {
-      buffer.flip(); 
-      String request = new String(buffer.array(), 0, buffer.limit());
-      System.out.println("Solicitud recibida:\n" + request);
-      HttpResponse response = processRequest(request);
+    byte[] requestBytes = data.toByteArray();
+    String request = new String(requestBytes);
+    String[] parts = request.split("\r\n\r\n", 2);
+    String headers = parts[0];
+    byte[] body = parts.length > 1 ? parts[1].getBytes() : null;
+    HttpResponse response = processRequest(headers, body);
 
-      if(response != null) {
-        sendResponse(client, response);
-      }
+    if(response != null) {
+      sendResponse(client, response);
     }
 
+    // if (bytesRead > 0) {
+    //   buffer.flip(); 
+    //   String request = new String(buffer.array(), 0, buffer.limit());
+    //   // System.out.println("Solicitud recibida:\n" + request);
+
+    //   String[] parts = request.split("\r\n\r\n", 2);
+    //   String headers = parts[0];
+    //   byte[] body = parts.length > 1 ? parts[1].getBytes() : null;
+      
+    //   HttpResponse response = processRequest(headers, body);
+
+    //   if(response != null) {
+    //     sendResponse(client, response);
+    //   }
+    // }
   }
 
   private void sendResponse (SocketChannel client, HttpResponse response) {
@@ -114,12 +136,7 @@ public class Server {
     }
   }
 
-  private HttpResponse processRequest(String request) {
-    String[] lines = request.split("\r\n");
-
-    String[] requestLine = lines[0].split(" ");
-    String method = requestLine[0];
-    String resource = requestLine[1];
-    return CommandFactory.createCommand(method, resource);
+  private HttpResponse processRequest(String headers, byte[] body) {
+    return CommandFactory.createCommand(headers, body);
   }
 }

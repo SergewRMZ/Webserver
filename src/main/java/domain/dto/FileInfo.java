@@ -1,4 +1,4 @@
-package dto;
+package domain.dto;
 
 public class FileInfo {
   private String name;
