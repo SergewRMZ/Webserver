@@ -2,6 +2,8 @@ package presentation.http;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import com.google.gson.JsonObject;
 public class HttpResponse {
   private int statusCode;
   private String statusMessage;
@@ -47,5 +49,18 @@ public class HttpResponse {
     System.arraycopy(headersBytes, 0, fullResponse, 0, headersBytes.length);
     System.arraycopy(body, 0, fullResponse, headersBytes.length, body.length);
     return fullResponse;
+  }
+
+  public HttpResponse createSuccessResponse(int statusCode, String statusMessage, String message) {
+    JsonObject jsonResponse = new JsonObject();
+    jsonResponse.addProperty("status", "success");
+    jsonResponse.addProperty("message", message);
+
+    HttpResponse response = new HttpResponse();
+    response.setStatus(statusCode, statusMessage);
+    response.addHeader("Content-Type", "application/json");
+    response.addHeader("Content-Length", String.valueOf(jsonResponse.toString().getBytes().length));
+    response.setBody(jsonResponse.toString().getBytes());
+    return response;
   }
 }

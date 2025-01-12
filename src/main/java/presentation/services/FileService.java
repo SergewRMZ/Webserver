@@ -1,12 +1,14 @@
 package presentation.services;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
 
 import domain.dto.FileInfo;
+import domain.error.CustomError;
 import presentation.http.HttpResponse;
 
 public class FileService {
@@ -53,4 +55,40 @@ public class FileService {
     System.out.println(response.generateResponseHeaders() + jsonResponse);
     return response;
   } // getFiles
+
+  public void createFile(String path, String filename, byte[] contentFile) {
+    try {
+      createDirectoryIfNotExist(path);
+      File file = new File(path + File.separator + filename);
+      FileOutputStream fos = new FileOutputStream(file);
+      fos.write(contentFile);
+      fos.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public void createDirectoryIfNotExist(String directory) throws Exception {
+    File dir = new File(directory);
+    if(!dir.exists()) {
+      if(dir.mkdirs()) {
+        System.out.println("Directorio creado: " + dir);
+      }
+
+      else {
+        throw new Exception("No se puede crear el directorio: " + directory);
+      }
+    }
+  }
+
+  public HttpResponse deleteFile(String path) {
+    File file = new File(path);
+    if(!file.exists()) {
+      return CustomError.badRequest("El archivo que intentas eliminar, no existe");
+    }
+
+    file.delete();
+    HttpResponse response = new HttpResponse();
+    return response.createSuccessResponse(201, "success", "Archivo eliminado correctamente");
+  }
 }

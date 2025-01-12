@@ -1,15 +1,23 @@
 package presentation.command;
+import java.io.FileOutputStream;
+import java.util.Base64;
+
+import com.google.gson.JsonObject;
+
 import presentation.http.HttpResponse;
-import presentation.http.HttpUtils;
+import presentation.services.FileService;
+
 public class PostCommand implements Command {
   private String headers;
   private String basePath;
   private byte[] body;
+  private FileService fileService;
   
   public PostCommand(String headers, byte[] body) {
     this.headers = headers;
     this.body = body;
     this.basePath = "public";
+    this.fileService = new FileService();
   }
 
   @Override
@@ -21,23 +29,30 @@ public class PostCommand implements Command {
   private HttpResponse handleApiRequest() {
     HttpResponse response = new HttpResponse();
     try {
-      String contentType = HttpUtils.getContentType(headers);
-      String boundary = HttpUtils.getBoundary(contentType);
       String ruta = headers.split(" ")[1];
-      System.out.println("Ruta: " + ruta);
-      if(boundary != null) {
-        System.out.println(boundary);
+      String directory = basePath + ruta.replaceFirst("/api/upload", "");
+      String filename = "uploaded_file.jpg";
+      System.out.println(headers);
+      System.out.println("Bytes: " + body.length);
+     
+      fileService.createDirectoryIfNotExist(directory);
+      try (FileOutputStream fos = new FileOutputStream(directory + "/" + filename)) {
+        fos.write(body);
       }
 
-      String[] parts = new String(body).split("--" + boundary);
-      for(String part: parts) {
-        if(part.contains("Content-Disposition")) {
-          String filename = part.split(";")[2].split("filename=")[1];
-          byte[] fileData = extractFileData(part);
-        }
-      }
+      response.setStatus(201, "Created");
+      response.addHeader("Content-Type", "application/json");
+      String jsonResponse = "{\"status\": \"success\", \"message\": \"Archivo subido exitosamente\"}";
+      response.addHeader("Content-Length", String.valueOf(jsonResponse.getBytes().length));
+      response.setBody(jsonResponse.getBytes());
+      return response;
     } catch (Exception e) {
       e.printStackTrace();
+      response.setStatus(500, "Internal Server Error");
+      JsonObject jsonRespose = new JsonObject();
+      jsonRespose.addProperty("status", "error");
+      jsonRespose.addProperty("message", "Error al subir el archivo");
+      response.setBody(jsonRespose.toString().getBytes());
     }
 
     return response;

@@ -79,12 +79,14 @@ public class Server {
 
   private void handleRead(SelectionKey key) throws IOException {
     SocketChannel client = (SocketChannel) key.channel();
-    ByteBuffer buffer = ByteBuffer.allocate(2048);
+    ByteBuffer buffer = ByteBuffer.allocate(8192);
     ByteArrayOutputStream data = new ByteArrayOutputStream();
     
     int bytesRead;
+   
     while ((bytesRead = client.read(buffer)) > 0) {
       buffer.flip();
+      
       data.write(buffer.array(), 0, buffer.limit());
       buffer.clear();
     }
@@ -97,6 +99,7 @@ public class Server {
 
     byte[] requestBytes = data.toByteArray();
     String request = new String(requestBytes);
+    // System.out.println(request);
     String[] parts = request.split("\r\n\r\n", 2);
     String headers = parts[0];
     byte[] body = parts.length > 1 ? parts[1].getBytes() : null;
@@ -105,27 +108,12 @@ public class Server {
     if(response != null) {
       sendResponse(client, response);
     }
-
-    // if (bytesRead > 0) {
-    //   buffer.flip(); 
-    //   String request = new String(buffer.array(), 0, buffer.limit());
-    //   // System.out.println("Solicitud recibida:\n" + request);
-
-    //   String[] parts = request.split("\r\n\r\n", 2);
-    //   String headers = parts[0];
-    //   byte[] body = parts.length > 1 ? parts[1].getBytes() : null;
-      
-    //   HttpResponse response = processRequest(headers, body);
-
-    //   if(response != null) {
-    //     sendResponse(client, response);
-    //   }
-    // }
   }
 
   private void sendResponse (SocketChannel client, HttpResponse response) {
     try {
       ByteBuffer responseBuffer = ByteBuffer.wrap(response.generateResponse());
+      System.out.println(new String(responseBuffer.array()));
       while (responseBuffer.hasRemaining()) {
         client.write(responseBuffer);
       }

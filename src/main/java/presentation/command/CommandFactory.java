@@ -5,6 +5,8 @@ import presentation.http.HttpResponse;
 public class CommandFactory {
   public static HttpResponse createCommand(String headers, byte[] body) {
     Command command;
+    // System.out.println(headers);
+    // System.out.println(body);
 
     String[] lines = headers.split("\r\n");
     String[] requestLine = lines[0].split(" ");
@@ -14,6 +16,7 @@ public class CommandFactory {
     switch (method) {
       case "GET" -> command = new GetFileCommand(resource);
       case "POST" -> command = new PostCommand(headers, body);
+      case "DELETE" -> command = new DeleteFileCommand(headers, body);
       default -> throw new AssertionError();
     }
 
