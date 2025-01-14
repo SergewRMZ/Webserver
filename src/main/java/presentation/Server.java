@@ -79,11 +79,11 @@ public class Server {
 
   private void handleRead(SelectionKey key) throws IOException {
     SocketChannel client = (SocketChannel) key.channel();
-    ByteBuffer buffer = ByteBuffer.allocate(8192);
+    ByteBuffer buffer = ByteBuffer.allocate(1024);
     ByteArrayOutputStream data = new ByteArrayOutputStream();
     
     int bytesRead;
-   
+    
     while ((bytesRead = client.read(buffer)) > 0) {
       buffer.flip();
       
@@ -99,7 +99,7 @@ public class Server {
 
     byte[] requestBytes = data.toByteArray();
     String request = new String(requestBytes);
-    // System.out.println(request);
+    System.out.println("Longitud de la request: " + request.length());
     String[] parts = request.split("\r\n\r\n", 2);
     String headers = parts[0];
     byte[] body = parts.length > 1 ? parts[1].getBytes() : null;

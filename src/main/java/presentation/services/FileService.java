@@ -1,7 +1,6 @@
 package presentation.services;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,18 +55,6 @@ public class FileService {
     return response;
   } // getFiles
 
-  public void createFile(String path, String filename, byte[] contentFile) {
-    try {
-      createDirectoryIfNotExist(path);
-      File file = new File(path + File.separator + filename);
-      FileOutputStream fos = new FileOutputStream(file);
-      fos.write(contentFile);
-      fos.close();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
   public void createDirectoryIfNotExist(String directory) throws Exception {
     File dir = new File(directory);
     if(!dir.exists()) {
@@ -90,5 +77,24 @@ public class FileService {
     file.delete();
     HttpResponse response = new HttpResponse();
     return response.createSuccessResponse(201, "success", "Archivo eliminado correctamente");
+  }
+
+  public HttpResponse renameFile(String path, String newName) {
+    File currentFile = new File(path);
+    if(!currentFile.exists()) {
+      return CustomError.badRequest("El archivo que intentas renombrar no existe en el servidor");
+    } 
+
+    File newFile = new File(currentFile.getParent(), newName);
+    if(newFile.exists()) {
+      return CustomError.badRequest("Ya existe un archivo con el mismo nombre");
+    }
+
+    if(!currentFile.renameTo(newFile)) {
+      return CustomError.internalServer("No se pudo renombrar el archivo");
+    }
+
+    HttpResponse response = new HttpResponse();
+    return response.createSuccessResponse(204, "update", "Archivo renombrado correctamente");
   }
 }

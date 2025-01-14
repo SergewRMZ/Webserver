@@ -1,5 +1,8 @@
 package domain.error;
 
+import java.io.File;
+import java.io.FileInputStream;
+
 import com.google.gson.JsonObject;
 
 import presentation.http.HttpResponse;
@@ -16,6 +19,23 @@ public class CustomError {
     
     response.addHeader("Content-Length", String.valueOf(jsonResponse.toString().getBytes().length));
     response.setBody(jsonResponse.toString().getBytes());
+    return response;
+  }
+
+  public static HttpResponse notFound() {
+    HttpResponse response = new HttpResponse();
+    response.setStatus(404, "Recurso no encontrado");
+    response.addHeader("Content-Type", "text/html");
+    byte[] fileContent = null;
+    File file = new File("public/NotFound.html");
+    try (FileInputStream flujo = new FileInputStream(file)){
+      fileContent = flujo.readAllBytes();
+    } catch (Exception e) {
+      System.err.println("Error al leer el archivo");
+      e.printStackTrace();
+    }
+    response.addHeader("Content-Length", String.valueOf(fileContent.length));
+    response.setBody(fileContent);
     return response;
   }
  
