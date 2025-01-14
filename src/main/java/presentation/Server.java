@@ -18,7 +18,6 @@ public class Server {
   private final int PORT = 8080;
   private ServerSocketChannel serverSocket;
   private Selector selector;
-
   private Server() {}
 
   public static Server getInstance() {

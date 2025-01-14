@@ -20,7 +20,7 @@ public class DeleteFileCommand implements Command {
   @Override
   public HttpResponse execute() {
     if(headers.contains("/api/files")) return handleDeleteFile();
-    return null;
+    else return CustomError.notFound();
   }
 
   private HttpResponse handleDeleteFile() {
