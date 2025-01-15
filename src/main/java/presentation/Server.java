@@ -9,6 +9,8 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import presentation.command.CommandFactory;
 import presentation.http.HttpResponse;
@@ -18,6 +20,8 @@ public class Server {
   private final int PORT = 8080;
   private ServerSocketChannel serverSocket;
   private Selector selector;
+  private ExecutorService threadPool;
+
   private Server() {}
 
   public static Server getInstance() {
@@ -36,6 +40,8 @@ public class Server {
 
       selector = Selector.open();
       serverSocket.register(selector, SelectionKey.OP_ACCEPT);
+
+      threadPool = Executors.newFixedThreadPool(8);
       System.out.println("Servidor iniciado en el puerto: " + PORT);
     } catch (Exception e) {
       System.err.println("Error al abrir el socket");
@@ -60,7 +66,15 @@ public class Server {
   
           else if(key.isReadable()) {
             handleRead(key);
+            // threadPool.execute(() -> {
+            //   try {
+            //     handleRead(key);
+            //   } catch (IOException e) {
+            //     e.printStackTrace();
+            //   }
+            // });
             continue;
+            
           }
         }
       }
@@ -112,7 +126,7 @@ public class Server {
   private void sendResponse (SocketChannel client, HttpResponse response) {
     try {
       ByteBuffer responseBuffer = ByteBuffer.wrap(response.generateResponse());
-      System.out.println(new String(responseBuffer.array()));
+      // System.out.println(new String(responseBuffer.array()));
       while (responseBuffer.hasRemaining()) {
         client.write(responseBuffer);
       }

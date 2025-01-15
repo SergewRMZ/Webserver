@@ -64,7 +64,6 @@ public class PostCommand implements Command {
         String directory = basePath + ruta.replace("/api/upload", "");
         System.out.println(headers);
         String bodyAux = new String(body);
-        System.out.println("Long body string: " + bodyAux.length());
         System.out.println("Long body en bytes: " + body.length);
         String[] parts = new String(body).split("--" + boundary);
         for(String part: parts) {
